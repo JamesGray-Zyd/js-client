@@ -76,15 +76,15 @@
 		return this.protocol.init();
 	};
 
-	function htmlEscape(text){ 
+	function htmlEscape(text){
 		return text.replace(/[<>"&]/g, function(match, pos, originalText){
 		switch(match){
-		case "<": return "&lt;"; 
+		case "<": return "&lt;";
 		case ">":return "&gt;";
-		case "&":return "&amp;"; 
-		case "\"":return "&quot;"; 
-		} 
-		}); 
+		case "&":return "&amp;";
+		case "\"":return "&quot;";
+		}
+		});
 	}
 
 	WsClient.prototype.initWebsocketConnect = function(resolve, reject) {
@@ -93,9 +93,9 @@
 			this.socket.onmessage = (event) => {
 				var msg = JSON.parse(event.data).data;
 				if(msg == 'INTERACTIVE_SIGNAL_START'){
-					window.is = true;						
+					window.is = true;
 				}else if(msg == 'INTERACTIVE_SIGNAL_STOP'){
-					window.is = false;	
+					window.is = false;
 				}else{
 					window.wsClient.panel.append(htmlEscape(msg))
 				}
@@ -120,7 +120,7 @@
 				reject(e);
 			};
 
-			
+
 		} else {
 			log.error("current browser not support websocket");
 		}

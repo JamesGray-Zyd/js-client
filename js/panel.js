@@ -1,7 +1,7 @@
-;(function(window, EventWrapper, Toggleable, Utils, Poker) {
+; (function (window, EventWrapper, Toggleable, Utils, Poker) {
     'use strict';
 
-    function Panel() {
+    function Panel () {
         this.eventWrapper = new EventWrapper();
         this.terminalDiv = document.querySelector("#terminal");
         this.contentDiv = document.querySelector("#content");
@@ -16,20 +16,22 @@
 
     var prefix = '<div id="prefix" style="overflow:hidden;width:100%"><i class="fa fa-angle-right" aria-hidden="true" style="padding-right:5px;color:#2162ac"></i>';
 
-    Panel.prototype.append = function(str) {
+    Panel.prototype.append = function (str) {
         var split = str.split("\n");
         var html = split.join("</br>") + "</br>";
-
         this.contentDiv.innerHTML += html;
         this.contentDiv.scrollTop = this.contentDiv.scrollHeight;
+        if (/^&gt;&gt; (.*?) say:/.test(str) || /^Game starting/.test(str) || /^Last player/m.test(str)) {
+            notifyMessage(str.substring(str.indexOf(" ")))
+        }
     };
 
-    Panel.prototype.clear = function(str) {
+    Panel.prototype.clear = function (str) {
         this.contentDiv.innerHTML = '';
         this.contentDiv.scrollTop = this.contentDiv.scrollHeight;
     };
 
-    Panel.prototype.help = function(str) {
+    Panel.prototype.help = function (str) {
         var html = ''
         this.contentDiv.innerHTML += html;
         this.contentDiv.scrollTop = this.contentDiv.scrollHeight;
@@ -37,20 +39,20 @@
 
     var enterCode = 13;
 
-    Panel.prototype.waitInput = function() {
+    Panel.prototype.waitInput = function () {
         return new Promise(resolve => {
             this.eventWrapper.addEventListener(this.inputBox, "keypress", (e) => {
                 var val = this.inputBox.value.trim();
                 if (e.keyCode == enterCode) {
                     if (Utils.isEmpty(val)) return;
-                    if (val.startsWith('~')){
+                    if (val.startsWith('~')) {
                         window.imClient.sendMsg(val.substring(1))
-                    }else if(val == 'clear'){
+                    } else if (val == 'clear') {
                         this.clear()
-                    }else if(val == 'help'){
+                    } else if (val == 'help') {
                         this.help()
-                    }else {
-                        if(window.is){
+                    } else {
+                        if (window.is) {
                             window.wsClient.sendMsg(val)
                         }
                         // this.append(prefix + val + '</div>');
@@ -64,7 +66,7 @@
     var arrowUpCode = 38;
     var arrowDownCode = 40;
 
-    function togglePredicate(e, type) {
+    function togglePredicate (e, type) {
         var keyCode = e.keyCode;
         var ctrlKey = e.ctrlKey;
 
@@ -73,4 +75,4 @@
     }
 
     window.Panel = Panel;
-} (this, this.EventWrapper, this.Toggleable, this.Utils, this.Poker));
+}(this, this.EventWrapper, this.Toggleable, this.Utils, this.Poker));

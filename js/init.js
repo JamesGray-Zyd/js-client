@@ -1,4 +1,4 @@
-;(function(window, Utils) {
+; (function (window, Utils) {
     'use strict';
 
     var existingServerListApis = [
@@ -8,7 +8,7 @@
         "121.5.140.133:1024:Nico[v1.3.0]"
     ];
 
-    function Server(s) {
+    function Server (s) {
         if (!Server.pattern.test(s)) {
             throw new Error("Illegal server address. Server address schema like: ip:port:name[version].");
         }
@@ -22,7 +22,7 @@
     Server.pattern = /([\w\.]+):(\d+)(?::(\w+)\[v(1\.\d\.\d)\])?/i;
     Server.requiredMinVersion = "v1.2.7";
 
-    Server.prototype.compareVersion = function(otherVersion) {
+    Server.prototype.compareVersion = function (otherVersion) {
         if (otherVersion.startsWith("v") || otherVersion.startsWith("V")) {
             otherVersion = otherVersion.substr(1);
         }
@@ -30,7 +30,7 @@
         return this.version - parseInt(otherVersion.replace(/\./g, ""));
     };
 
-    Server.prototype.toString = function() {
+    Server.prototype.toString = function () {
         var s = this.host + ":" + this.port;
         if (this.name) s += ":" + this.name;
         if (this.version) s += "[v" + this.version + "]";
@@ -40,15 +40,16 @@
     // ---------------------------------------------------------------------------------------------
     var defaultLoadTimeout = 1000;
 
-    function showInput() {
+    function showInput () {
         var contentDiv = document.querySelector("#content");
         contentDiv.innerHTML += "Nickname: ";
         var input = document.querySelector("#input");
         input.addEventListener("keypress", selectServer, false);
         input.focus();
+        input.value = window.localStorage.getItem("userName") ?? ""
     }
 
-    function selectServer(e) {
+    function selectServer (e) {
         if (e.keyCode != 13) {
             return;
         }
@@ -57,29 +58,33 @@
         var contentDiv = document.querySelector("#content");
         var input = document.querySelector("#input");
         input.value = input.value.trim()
-        if (! input.value) {
+        if (!input.value) {
             contentEl.innerHTML += "</br><font color='red'>Nickname不能为空</font></br>";
             return showInput()
         }
-        if (input.value.length > 10) {
-            contentEl.innerHTML += "</br><font color='red'>Nickname不能超出10个字符</font></br>";
-            return showInput()
-        }
+        // if (input.value.length > 10) {
+        //     contentEl.innerHTML += "</br><font color='red'>Nickname不能超出10个字符</font></br>";
+        //     return showInput()
+        // }
         var s = "49.235.95.125:9998:Nico[v1.0.0]"
         var server = new Server(s);
         window.name = input.value;
         input.value = "";
-        
+
         contentDiv.innerHTML += name + " </br>";
         start(server.host, server.port)
-            .then(() => input.removeEventListener("keypress", selectServer, false))
+            .then(() => {
+                window.localStorage.setItem("userName", window.name)
+                input.removeEventListener("keypress", selectServer, false)
+                // notifyInit()// 初始化消息通知
+            })
             .catch(e => {
                 console.error(e);
                 contentEl.innerHTML += "Connect server [" + server.toString() + "] fail, please choose another server.</br>";
             });
     }
 
-    function start(host, port) {
+    function start (host, port) {
         if (typeof host === "undefined") {
             host = "127.0.0.1";
         }
@@ -95,15 +100,15 @@
         return client;
     }
 
-    window.onload = function() {
+    window.onload = function () {
         defaultSite.render();
         showInput();
     };
 
     document.onkeydown = function (event) {
         var e = event || window.event;
-        if (e && e.keyCode == 13) { 
+        if (e && e.keyCode == 13) {
             document.getElementById("input").focus()
         }
-    }; 
-} (this, this.Utils));
+    };
+}(this, this.Utils));
